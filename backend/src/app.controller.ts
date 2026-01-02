@@ -11,7 +11,7 @@ export class AppController {
   }
 
   @Get('now')
-  async getNow() {
+  async getNow(): Promise<{ time: string | undefined }> {
     const time = await this.appService.getDatabaseTime()
     return { time }
   }

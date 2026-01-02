@@ -9,8 +9,8 @@ export class AppService {
     return 'Hello World!'
   }
 
-  async getDatabaseTime() {
-    const result: any[] = await this.prisma.$queryRaw`SELECT NOW()`
-    return result[0].now
+  async getDatabaseTime(): Promise<string | undefined> {
+    const result = await this.prisma.$queryRaw<{ now: string }[]>`SELECT NOW()`
+    return result[0]?.now
   }
 }

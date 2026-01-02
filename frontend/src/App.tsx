@@ -13,10 +13,18 @@ function HomePage() {
     <div className="flex flex-col items-center justify-center min-h-screen gap-8 p-8 text-center">
       <div className="flex gap-4">
         <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="w-24 h-24 transition-all hover:scale-110" alt="Vite logo" />
+          <img
+            src={viteLogo}
+            className="w-24 h-24 transition-all hover:scale-110"
+            alt="Vite logo"
+          />
         </a>
         <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="w-24 h-24 transition-all hover:scale-110" alt="React logo" />
+          <img
+            src={reactLogo}
+            className="w-24 h-24 transition-all hover:scale-110"
+            alt="React logo"
+          />
         </a>
       </div>
       <h1 className="text-4xl font-bold tracking-tight">Vite + React + Tailwind v4 + Shadcn UI</h1>

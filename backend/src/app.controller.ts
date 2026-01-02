@@ -3,7 +3,7 @@ import { AppService } from './app.service'
 
 @Controller()
 export class AppController {
-  constructor(private readonly appService: AppService) { }
+  constructor(private readonly appService: AppService) {}
 
   @Get()
   getHello(): string {
@@ -11,7 +11,7 @@ export class AppController {
   }
 
   @Get('now')
-  async getNow() {
+  async getNow(): Promise<{ time: string | undefined }> {
     const time = await this.appService.getDatabaseTime()
     return { time }
   }

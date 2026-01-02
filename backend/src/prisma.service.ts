@@ -5,20 +5,20 @@ import { Pool } from 'pg'
 
 @Injectable()
 export class PrismaService extends PrismaClient implements OnModuleInit, OnModuleDestroy {
-    constructor() {
-        const pool = new Pool({
-            connectionString: process.env.DATABASE_URL,
-            ssl: false
-        })
-        const adapter = new PrismaPg(pool)
-        super({ adapter })
-    }
+  constructor() {
+    const pool = new Pool({
+      connectionString: process.env.DATABASE_URL,
+      ssl: false,
+    })
+    const adapter = new PrismaPg(pool)
+    super({ adapter })
+  }
 
-    async onModuleInit() {
-        await this.$connect()
-    }
+  async onModuleInit() {
+    await this.$connect()
+  }
 
-    async onModuleDestroy() {
-        await this.$disconnect()
-    }
+  async onModuleDestroy() {
+    await this.$disconnect()
+  }
 }

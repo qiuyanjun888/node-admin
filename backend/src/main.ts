@@ -3,6 +3,8 @@ import { NestFactory } from '@nestjs/core'
 import { AppModule } from './app.module'
 import { ValidationPipe } from '@nestjs/common'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
+import { TransformInterceptor } from './common/interceptors/transform.interceptor'
+import { AllExceptionsFilter } from './common/filters/http-exception.filter'
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule)
@@ -18,6 +20,12 @@ async function bootstrap() {
 
   // 2. Enable CORS for Frontend communication
   app.enableCors()
+
+  // 4. Global Interceptor for unified response
+  app.useGlobalInterceptors(new TransformInterceptor())
+
+  // 5. Global Filter for unified exception handling
+  app.useGlobalFilters(new AllExceptionsFilter())
 
   // 3. Configure Swagger API Docs
   const config = new DocumentBuilder()

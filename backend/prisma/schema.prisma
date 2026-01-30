@@ -6,10 +6,73 @@ datasource db {
   provider = "postgresql"
 }
 
-model Note {
-  id        Int      @id @default(autoincrement())
-  title     String
-  content   String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+model User {
+  id        Int        @id @default(autoincrement())
+  username  String     @unique @db.VarChar(50)
+  password  String     @db.VarChar(255)
+  nickname  String?    @db.VarChar(50)
+  email     String?    @db.VarChar(100)
+  avatar    String?    @db.VarChar(255)
+  status    Int        @default(1) @db.SmallInt
+  createdAt DateTime   @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime   @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+  roles     UserRole[]
+
+  @@map("users")
+}
+
+model Role {
+  id          Int              @id @default(autoincrement())
+  roleName    String           @map("role_name") @db.VarChar(50)
+  roleCode    String           @unique @map("role_code") @db.VarChar(50)
+  description String?          @db.VarChar(255)
+  status      Int              @default(1) @db.SmallInt
+  createdAt   DateTime         @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt   DateTime         @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+  users       UserRole[]
+  permissions RolePermission[]
+
+  @@map("roles")
+}
+
+model Permission {
+  id             Int              @id @default(autoincrement())
+  name           String           @db.VarChar(50)
+  type           Int              @db.SmallInt
+  parentId       Int              @default(0) @map("parent_id")
+  path           String?          @db.VarChar(255)
+  component      String?          @db.VarChar(255)
+  sortOrder      Int              @default(0) @map("sort_order")
+  isVisible      Int              @default(1) @map("is_visible") @db.SmallInt
+  permissionCode String?          @map("permission_code") @db.VarChar(50)
+  status         Int              @default(1) @db.SmallInt
+  createdAt      DateTime         @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt      DateTime         @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+  roles          RolePermission[]
+
+  @@map("permissions")
+}
+
+model UserRole {
+  userId    Int      @map("user_id")
+  roleId    Int      @map("role_id")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+  user      User     @relation(fields: [userId], references: [id])
+  role      Role     @relation(fields: [roleId], references: [id])
+
+  @@id([userId, roleId])
+  @@map("user_roles")
+}
+
+model RolePermission {
+  roleId       Int        @map("role_id")
+  permissionId Int        @map("permission_id")
+  createdAt    DateTime   @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt    DateTime   @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+  role         Role       @relation(fields: [roleId], references: [id])
+  permission   Permission @relation(fields: [permissionId], references: [id])
+
+  @@id([roleId, permissionId])
+  @@map("role_permissions")
 }

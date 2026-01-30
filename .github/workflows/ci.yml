@@ -32,7 +32,7 @@ jobs:
         run: npx prisma generate
 
       - name: Check Code Formatting
-        run: npx prettier --check "src/**/*.ts" "test/**/*.ts"
+        run: npx prettier --check "src/**/*.ts"
 
       - name: Run ESLint
         run: npm run lint

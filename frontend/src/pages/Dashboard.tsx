@@ -7,10 +7,10 @@ import {
 
 export default function Dashboard() {
     const stats = [
-        { name: '总用户数', value: '1,284', icon: Users, color: 'text-blue-600', bg: 'bg-blue-100' },
-        { name: '今日活跃', value: '84', icon: Activity, color: 'text-green-600', bg: 'bg-green-100' },
-        { name: '数据库负载', value: '12%', icon: Database, color: 'text-purple-600', bg: 'bg-purple-100' },
-        { name: '权限变更', value: '3', icon: ShieldCheck, color: 'text-amber-600', bg: 'bg-amber-100' },
+        { name: '总用户数', value: '1,284', icon: Users, color: 'text-primary', bg: 'bg-primary/10' },
+        { name: '今日活跃', value: '84', icon: Activity, color: 'text-green-600', bg: 'bg-green-600/10' },
+        { name: '数据库负载', value: '12%', icon: Database, color: 'text-secondary-foreground', bg: 'bg-secondary' },
+        { name: '权限变更', value: '3', icon: ShieldCheck, color: 'text-orange-500', bg: 'bg-orange-500/10' },
     ]
 
     return (

@@ -158,7 +158,7 @@ export default function UserManagement() {
                                         <td className="px-6 py-4 align-middle">
                                             <div className="flex items-center gap-3">
                                                 <span className={cn(
-                                                    "font-bold transition-colors",
+                                                    "font-medium transition-colors",
                                                     user.status === 1 ? "text-foreground" : "text-muted-foreground"
                                                 )}>
                                                     {user.username}
@@ -186,7 +186,7 @@ export default function UserManagement() {
                                                 />
                                                 <span className={cn(
                                                     "text-xs font-medium",
-                                                    user.status === 1 ? "text-green-600" : "text-muted-foreground"
+                                                    user.status === 1 ? "text-primary" : "text-muted-foreground"
                                                 )}>
                                                     {user.status === 1 ? '启用' : '禁用'}
                                                 </span>

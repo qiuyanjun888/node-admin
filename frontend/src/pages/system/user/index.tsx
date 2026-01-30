@@ -149,19 +149,34 @@ export default function UserManagement() {
                             ) : (
                                 data?.items.map((user) => (
                                     <tr key={user.id} className="transition-colors hover:bg-muted/30">
-                                        <td className="px-6 py-4 align-middle text-muted-foreground font-mono">{user.id}</td>
+                                        <td className={cn(
+                                            "px-6 py-4 align-middle font-mono transition-colors",
+                                            user.status === 1 ? "text-foreground" : "text-muted-foreground"
+                                        )}>
+                                            {user.id}
+                                        </td>
                                         <td className="px-6 py-4 align-middle">
                                             <div className="flex items-center gap-3">
                                                 <span className={cn(
-                                                    "font-semibold transition-colors",
+                                                    "font-bold transition-colors",
                                                     user.status === 1 ? "text-foreground" : "text-muted-foreground"
                                                 )}>
                                                     {user.username}
                                                 </span>
                                             </div>
                                         </td>
-                                        <td className="px-6 py-4 align-middle">{user.nickname || '-'}</td>
-                                        <td className="px-6 py-4 align-middle text-muted-foreground">{user.email || '-'}</td>
+                                        <td className={cn(
+                                            "px-6 py-4 align-middle transition-colors font-medium",
+                                            user.status === 1 ? "text-foreground" : "text-muted-foreground"
+                                        )}>
+                                            {user.nickname || '-'}
+                                        </td>
+                                        <td className={cn(
+                                            "px-6 py-4 align-middle transition-colors",
+                                            user.status === 1 ? "text-foreground" : "text-muted-foreground"
+                                        )}>
+                                            {user.email || '-'}
+                                        </td>
                                         <td className="px-6 py-4 align-middle">
                                             <div className="flex items-center gap-2">
                                                 <Switch
@@ -204,46 +219,49 @@ export default function UserManagement() {
                 title={editingUser ? "编辑系统用户" : "新增系统用户"}
             >
                 <form onSubmit={handleSubmit} className="space-y-4">
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className={cn("grid gap-4", !editingUser ? "grid-cols-2" : "grid-cols-1")}>
                         <div className="space-y-2">
                             <label className="text-sm font-medium leading-none text-foreground/70">
                                 用户名 <span className="text-destructive">*</span>
                             </label>
                             <Input
                                 required
-                                disabled={!!editingUser}
                                 placeholder="用户名"
                                 value={formData.username}
                                 onChange={(e) => setFormData({ ...formData, username: e.target.value })}
                             />
                         </div>
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium leading-none text-foreground/70">
-                                账号状态
-                            </label>
-                            <div className="flex items-center h-10 gap-3 px-3 border rounded-md bg-secondary/20">
-                                <Switch
-                                    checked={formData.status === 1}
-                                    onCheckedChange={(checked) => setFormData({ ...formData, status: checked ? 1 : 0 })}
-                                />
-                                <span className="text-sm">{formData.status === 1 ? '启用' : '禁用'}</span>
+                        {!editingUser && (
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium leading-none text-foreground/70">
+                                    账号状态
+                                </label>
+                                <div className="flex items-center h-10 gap-3 px-3 border rounded-md bg-secondary/20">
+                                    <Switch
+                                        checked={formData.status === 1}
+                                        onCheckedChange={(checked) => setFormData({ ...formData, status: checked ? 1 : 0 })}
+                                    />
+                                    <span className="text-sm">{formData.status === 1 ? '启用' : '禁用'}</span>
+                                </div>
                             </div>
-                        </div>
+                        )}
                     </div>
 
-                    <div className="space-y-2">
-                        <label className="text-sm font-medium leading-none text-foreground/70">
-                            {editingUser ? "重置密码" : "初始密码"} {!editingUser && <span className="text-destructive">*</span>}
-                        </label>
-                        <Input
-                            required={!editingUser}
-                            type="password"
-                            placeholder={editingUser ? "不填写则不修改" : "请输入密码 (至少 6 位)"}
-                            minLength={6}
-                            value={formData.password}
-                            onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                        />
-                    </div>
+                    {!editingUser && (
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium leading-none text-foreground/70">
+                                初始密码 <span className="text-destructive">*</span>
+                            </label>
+                            <Input
+                                required={!editingUser}
+                                type="password"
+                                placeholder="请输入密码 (至少 6 位)"
+                                minLength={6}
+                                value={formData.password}
+                                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                            />
+                        </div>
+                    )}
                     <div className="space-y-2">
                         <label className="text-sm font-medium leading-none text-foreground/70">
                             用户昵称
@@ -265,6 +283,7 @@ export default function UserManagement() {
                             onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                         />
                     </div>
+
                     {(createMutation.error || updateMutation.error) && (
                         <div className="flex items-center gap-2 p-3 text-sm rounded-md bg-destructive/10 text-destructive animate-in fade-in slide-in-from-top-1">
                             <AlertCircle className="w-4 h-4" />

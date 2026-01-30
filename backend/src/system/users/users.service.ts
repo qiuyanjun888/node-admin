@@ -19,7 +19,7 @@ const userSelect = {
 
 @Injectable()
 export class UsersService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
   async create(createUserDto: CreateUserDto) {
     const { username, password, ...rest } = createUserDto
@@ -91,14 +91,23 @@ export class UsersService {
   }
 
   async update(id: number, updateUserDto: UpdateUserDto) {
-    const { password, ...rest } = updateUserDto
+    const { password, username, ...rest } = updateUserDto
 
     const user = await this.prisma.user.findUnique({ where: { id } })
     if (!user) {
       throw new NotFoundException(`User with ID ${id} not found`)
     }
 
-    const updateData: Prisma.UserUpdateInput = { ...rest }
+    if (username && username !== user.username) {
+      const existingUser = await this.prisma.user.findUnique({
+        where: { username },
+      })
+      if (existingUser) {
+        throw new ConflictException('Username already exists')
+      }
+    }
+
+    const updateData: Prisma.UserUpdateInput = { ...rest, username }
 
     if (password) {
       updateData.password = await bcrypt.hash(password, 10)

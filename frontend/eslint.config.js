@@ -27,5 +27,17 @@ export default [
       ],
     },
   },
+  {
+    files: ['test/**/*.{ts,tsx}', '**/*.test.{ts,tsx}', 'vitest.setup.ts'],
+    languageOptions: {
+      globals: {
+        ...globals.browser,
+        ...globals.jest,
+      },
+    },
+    rules: {
+      'react-refresh/only-export-components': 'off',
+    },
+  },
   prettierConfig,
 ]

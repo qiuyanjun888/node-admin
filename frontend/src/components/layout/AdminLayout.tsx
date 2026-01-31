@@ -8,8 +8,6 @@ import {
   ChevronDown,
   LayoutDashboard,
   LogOut,
-  Bell,
-  Search,
   Sun,
   Moon,
 } from 'lucide-react'
@@ -20,6 +18,7 @@ import { useEffect } from 'react'
 export default function AdminLayout() {
   const [isSidebarOpen, setSidebarOpen] = useState(true)
   const [isSystemMenuOpen, setSystemMenuOpen] = useState(true)
+  const [isUserMenuOpen, setUserMenuOpen] = useState(false)
   const [theme, setTheme] = useState<'light' | 'dark'>(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('theme') as 'light' | 'dark'
@@ -53,9 +52,6 @@ export default function AdminLayout() {
     return () => mediaQuery.removeEventListener('change', handleChange)
   }, [])
 
-  const toggleTheme = () => {
-    setTheme((prev) => (prev === 'light' ? 'dark' : 'light'))
-  }
 
   const navItems = [
     {
@@ -150,12 +146,6 @@ export default function AdminLayout() {
           ))}
         </nav>
 
-        <div className="p-4 border-t">
-          <Button variant="ghost" className="w-full justify-start text-muted-foreground">
-            <LogOut className="w-5 h-5" />
-            {isSidebarOpen && <span className="ml-3">退出登录</span>}
-          </Button>
-        </div>
       </aside>
 
       {/* Main Content */}
@@ -166,35 +156,68 @@ export default function AdminLayout() {
             <Button variant="ghost" size="icon" onClick={() => setSidebarOpen(!isSidebarOpen)}>
               <MenuIcon className="w-5 h-5" />
             </Button>
-            <div className="relative hidden md:block">
-              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-              <input
-                type="search"
-                placeholder="搜索..."
-                className="pl-9 pr-4 py-2 bg-muted/50 rounded-full text-sm w-64 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all font-normal border border-transparent focus:bg-card"
-              />
-            </div>
           </div>
 
           <div className="flex items-center gap-4">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={toggleTheme}
-              className="text-muted-foreground hover:text-primary"
-            >
-              {theme === 'light' ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
-            </Button>
-            <Button variant="ghost" size="icon" className="relative">
-              <Bell className="w-5 h-5" />
-              <span className="absolute top-2 right-2 w-2 h-2 bg-destructive rounded-full border-2 border-card"></span>
-            </Button>
-            <div className="flex items-center gap-3 pl-4 border-l border-border">
-              <div className="text-right hidden sm:block">
-                <p className="text-sm font-semibold leading-none text-foreground">Admin</p>
-                <p className="text-xs text-muted-foreground mt-1">超级管理员</p>
-              </div>
-              <div className="w-9 h-9 rounded-full bg-gradient-to-br from-primary to-primary/60 border-2 border-foreground/10 shadow-sm"></div>
+            <div className="flex items-center bg-muted/60 rounded-full p-1 border border-border/50 shadow-inner">
+              <button
+                onClick={() => setTheme('light')}
+                className={cn(
+                  'p-1.5 rounded-full transition-all duration-300 flex items-center justify-center',
+                  theme === 'light'
+                    ? 'bg-card text-primary shadow-md scale-110 active:scale-100'
+                    : 'text-muted-foreground hover:text-foreground hover:bg-muted opacity-60 hover:opacity-100',
+                )}
+                title="浅色模式"
+              >
+                <Sun className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => setTheme('dark')}
+                className={cn(
+                  'p-1.5 rounded-full transition-all duration-300 flex items-center justify-center',
+                  theme === 'dark'
+                    ? 'bg-card text-primary shadow-md scale-110 active:scale-100'
+                    : 'text-muted-foreground hover:text-foreground hover:bg-muted opacity-60 hover:opacity-100',
+                )}
+                title="深色模式"
+              >
+                <Moon className="w-4 h-4" />
+              </button>
+            </div>
+            <div className="relative">
+              <button
+                onClick={() => setUserMenuOpen(!isUserMenuOpen)}
+                className="flex items-center gap-3 pl-4 border-l border-border hover:opacity-80 transition-opacity"
+              >
+                <div className="text-right hidden sm:block">
+                  <p className="text-sm font-semibold leading-none text-foreground">Admin</p>
+                  <p className="text-xs text-muted-foreground mt-1 text-right">超级管理员</p>
+                </div>
+                <ChevronDown
+                  className={cn(
+                    'w-4 h-4 text-muted-foreground transition-transform',
+                    isUserMenuOpen && 'rotate-180',
+                  )}
+                />
+              </button>
+
+              {isUserMenuOpen && (
+                <>
+                  {/* Backdrop for click-outside */}
+                  <div className="fixed inset-0 z-40" onClick={() => setUserMenuOpen(false)} />
+                  <div className="absolute right-0 mt-2 w-48 bg-card border rounded-lg shadow-xl z-50 py-1 animate-in fade-in zoom-in-95 duration-200">
+                    <div className="px-4 py-2 border-b sm:hidden">
+                      <p className="text-sm font-semibold text-foreground">Admin</p>
+                      <p className="text-xs text-muted-foreground">超级管理员</p>
+                    </div>
+                    <button className="w-full flex items-center gap-2 px-4 py-2 text-sm text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors">
+                      <LogOut className="w-4 h-4" />
+                      退出登录
+                    </button>
+                  </div>
+                </>
+              )}
             </div>
           </div>
         </header>

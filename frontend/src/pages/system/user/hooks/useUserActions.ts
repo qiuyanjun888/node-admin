@@ -2,13 +2,17 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import api from '@/lib/api'
 import type { User, PageResult } from '@/types/system'
 
-export function useUserActions() {
+export function useUserActions(
+  page: number = 1,
+  pageSize: number = 10,
+  filters?: { username?: string; status?: number },
+) {
   const queryClient = useQueryClient()
 
   // Fetch users
   const usersQuery = useQuery<PageResult<User>>({
-    queryKey: ['system', 'users'],
-    queryFn: () => api.get('/system/users', { params: { page: 1, pageSize: 10 } }),
+    queryKey: ['system', 'users', page, pageSize, filters],
+    queryFn: () => api.get('/system/users', { params: { page, pageSize, ...filters } }),
   })
 
   // Create user mutation

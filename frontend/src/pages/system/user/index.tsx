@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
-import { Plus, AlertCircle } from 'lucide-react'
+import { Input } from '@/components/ui/input'
+import { Plus, AlertCircle, Search, RotateCcw } from 'lucide-react'
 import type { User } from '@/types/system'
 import { useUserActions } from './hooks/useUserActions'
 import { UserTable } from './components/UserTable'
@@ -18,8 +19,39 @@ export default function UserManagement() {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingUser, setEditingUser] = useState<User | null>(null)
   const [formData, setFormData] = useState(INITIAL_FORM_STATE)
+  const [page, setPage] = useState(1)
+  const [pageSize, setPageSize] = useState(10)
+  // 用于绑定输入框的状态
+  const [filters, setFilters] = useState<{ username: string; status: string }>({
+    username: '',
+    status: 'all',
+  })
+  // 用于触发实际搜索的状态
+  const [queryParams, setQueryParams] = useState({
+    username: '',
+    status: 'all',
+  })
 
-  const { usersQuery, createMutation, updateMutation, handleToggleStatus } = useUserActions()
+  const { usersQuery, createMutation, updateMutation, handleToggleStatus } = useUserActions(
+    page,
+    pageSize,
+    {
+      username: queryParams.username || undefined,
+      status: queryParams.status === 'all' ? undefined : Number(queryParams.status),
+    },
+  )
+
+  const handleSearch = () => {
+    setQueryParams(filters)
+    setPage(1)
+  }
+
+  const handleReset = () => {
+    const resetFilters = { username: '', status: 'all' }
+    setFilters(resetFilters)
+    setQueryParams(resetFilters)
+    setPage(1)
+  }
 
   const handleCloseModal = () => {
     setIsModalOpen(false)
@@ -83,12 +115,66 @@ export default function UserManagement() {
         </Button>
       </div>
 
+      {/* Filter Section */}
+      <div className="bg-card border rounded-xl p-4 shadow-sm space-y-4">
+        <div className="flex flex-wrap items-center gap-4">
+          <div className="flex items-center gap-2">
+            <label className="text-sm font-medium text-muted-foreground whitespace-nowrap">
+              用户名:
+            </label>
+            <Input
+              placeholder="请输入用户名"
+              className="w-48 h-9"
+              value={filters.username}
+              onChange={(e) => {
+                setFilters((prev) => ({ ...prev, username: e.target.value }))
+              }}
+            />
+          </div>
+          <div className="flex items-center gap-2">
+            <label className="text-sm font-medium text-muted-foreground whitespace-nowrap">
+              状态:
+            </label>
+            <select
+              value={filters.status}
+              onChange={(e) => {
+                setFilters((prev) => ({ ...prev, status: e.target.value }))
+              }}
+              className="h-9 w-32 rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring cursor-pointer"
+            >
+              <option value="all">全部</option>
+              <option value="1">启用</option>
+              <option value="0">禁用</option>
+            </select>
+          </div>
+          <div className="flex items-center gap-2 ml-auto">
+            <Button
+              variant="outline"
+              size="sm"
+              className="gap-2"
+              onClick={handleReset}
+            >
+              <RotateCcw className="w-4 h-4" />
+              重置
+            </Button>
+            <Button size="sm" className="gap-2" onClick={handleSearch}>
+              <Search className="w-4 h-4" />
+              搜索
+            </Button>
+          </div>
+        </div>
+      </div>
+
       <UserTable
         data={data}
         isLoading={isLoading}
         isUpdating={updateMutation.isPending}
         onEdit={handleEdit}
         onToggleStatus={handleToggleStatus}
+        page={page}
+        pageSize={pageSize}
+        onPageChange={setPage}
+        onPageSizeChange={setPageSize}
       />
 
       <UserFormModal

@@ -16,6 +16,7 @@ Node Admin is a premium, enterprise-grade general-purpose back-office management
 ## 🛠 Technology Stack
 
 ### Backend
+
 - **Framework**: [NestJS](https://nestjs.com/) (A progressive Node.js framework)
 - **ORM**: [Prisma](https://www.prisma.io/) (Next-generation Node.js and TypeScript ORM)
 - **Database**: [PostgreSQL](https://www.postgresql.org/)
@@ -24,6 +25,7 @@ Node Admin is a premium, enterprise-grade general-purpose back-office management
 - **Security**: JWT Authentication & Passport
 
 ### Frontend
+
 - **Framework**: [React](https://reactjs.org/) + [Vite](https://vitejs.dev/)
 - **Language**: [TypeScript](https://www.typescriptlang.org/)
 - **Styling**: [Tailwind CSS v4](https://tailwindcss.com/)
@@ -34,59 +36,92 @@ Node Admin is a premium, enterprise-grade general-purpose back-office management
 
 ---
 
-## 🚀 Getting Started
+## 🚀 快速开始
 
-### Prerequisites
-- Node.js (v18+)
-- PostgreSQL installed and running
+### 先决条件
 
-### 1. Backend Setup
-1. Navigate to the backend directory:
-   ```bash
-   cd backend
-   ```
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-3. Configure environment variables:
-   - Create a `.env` file from the provided configuration.
-   - Set your `DATABASE_URL`.
-4. Generate Prisma Client:
-   ```bash
-   npx prisma generate
-   ```
-5. Run the dev server:
-   ```bash
-   npm run start:dev
-   ```
-   *Access API documentation at `http://localhost:3000/api/docs`*
+- Node.js (v18+，建议 v20+)
+- pnpm (已通过 corepack 锁定版本)
+- PostgreSQL 已安装并运行
 
-### 2. Frontend Setup
-1. Navigate to the frontend directory:
-   ```bash
-   cd frontend
-   ```
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-3. Run the dev server:
-   ```bash
-   npm run dev
-   ```
-   *Access the web app at `http://localhost:5173`*
+### 安装依赖
 
-## 📁 Project Structure
+在仓库根目录执行：
+
+```bash
+pnpm install
+```
+
+### 环境变量
+
+后端需要配置 `DATABASE_URL`：
+
+```bash
+cp apps/backend/.env.example apps/backend/.env
+```
+
+然后根据实际数据库连接信息修改 `apps/backend/.env`。
+
+### 启动开发环境
+
+在仓库根目录执行：
+
+```bash
+pnpm dev
+```
+
+或分别启动：
+
+后端（NestJS）
+
+```bash
+pnpm --filter @node-admin/backend start:dev
+```
+
+访问：`http://localhost:3000/api/docs`
+
+前端（Vite）
+
+```bash
+pnpm --filter @node-admin/frontend dev
+```
+
+访问：`http://localhost:5173`
+
+### 编译、检查、测试（推荐在根目录）
+
+```bash
+pnpm build
+pnpm lint
+pnpm test
+```
+
+说明：
+
+- 后端 `build` 已包含 `prisma generate`，不需要手动执行。
+- 如需单独生成 Prisma Client：
+  ```bash
+  pnpm --filter @node-admin/backend exec prisma generate
+  ```
+
+## 📁 项目结构（Monorepo）
 
 ```text
 node-admin/
-├── backend/            # NestJS Backend API
-│   ├── prisma/         # Prisma schema and migrations
-│   └── src/            # Application source code
-├── frontend/           # React Frontend App
-│   └── src/            # Application source code
-└── README.md           # Project documentation
+├── apps/
+│   ├── backend/                # NestJS 后端
+│   │   ├── prisma/             # Prisma schema 和迁移
+│   │   └── src/                # 后端源码
+│   └── frontend/               # React + Vite 前端
+│       ├── src/                # 前端源码
+│       └── test/               # 前端测试
+├── packages/
+│   ├── shared-types/           # 前后端共享类型
+│   ├── eslint-config/          # 共享 ESLint 配置
+│   └── tsconfig/               # 共享 TS 基础配置
+├── pnpm-workspace.yaml         # pnpm workspace 定义
+├── turbo.json                  # Turbo 任务编排
+└── README.md
 ```
 
 ## 📜 License

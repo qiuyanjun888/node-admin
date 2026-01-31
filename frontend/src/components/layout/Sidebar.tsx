@@ -26,6 +26,7 @@ export default function Sidebar({ isOpen }: SidebarProps) {
       setOpen: setSystemMenuOpen,
       children: [
         { title: '菜单管理', path: '/system/menu', icon: MenuIcon },
+        { title: '角色管理', path: '/system/role', icon: ShieldCheck },
         { title: '用户管理', path: '/system/user', icon: Users },
         { title: '权限管理', path: '/system/permission', icon: ShieldCheck },
       ],

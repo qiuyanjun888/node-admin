@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import Header from './Header'
 import Sidebar from './Sidebar'
 import MainContent from './MainContent'
+import { CurrentRoleProvider } from '@/contexts/CurrentRoleContext'
 
 export default function AdminLayout() {
   const [isSidebarOpen, setSidebarOpen] = useState(true)
@@ -34,16 +35,18 @@ export default function AdminLayout() {
   }, [])
 
   return (
-    <div className="flex h-screen bg-background overflow-hidden font-medium">
-      <Sidebar isOpen={isSidebarOpen} />
-      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-        <Header
-          onSidebarToggle={() => setSidebarOpen(!isSidebarOpen)}
-          theme={theme}
-          onThemeChange={setTheme}
-        />
-        <MainContent />
+    <CurrentRoleProvider>
+      <div className="flex h-screen bg-background overflow-hidden font-medium">
+        <Sidebar isOpen={isSidebarOpen} />
+        <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+          <Header
+            onSidebarToggle={() => setSidebarOpen(!isSidebarOpen)}
+            theme={theme}
+            onThemeChange={setTheme}
+          />
+          <MainContent />
+        </div>
       </div>
-    </div>
+    </CurrentRoleProvider>
   )
 }

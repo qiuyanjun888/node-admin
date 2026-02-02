@@ -9,6 +9,14 @@ import { Prisma } from '@prisma/client'
 export class RolesService {
   constructor(private prisma: PrismaService) {}
 
+  private async assertRoleExists(id: number) {
+    const role = await this.prisma.role.findUnique({ where: { id } })
+    if (!role) {
+      throw new NotFoundException(`Role with ID ${id} not found`)
+    }
+    return role
+  }
+
   async create(createRoleDto: CreateRoleDto) {
     const { roleCode } = createRoleDto
 
@@ -59,22 +67,11 @@ export class RolesService {
   }
 
   async findOne(id: number) {
-    const role = await this.prisma.role.findUnique({
-      where: { id },
-    })
-
-    if (!role) {
-      throw new NotFoundException(`Role with ID ${id} not found`)
-    }
-
-    return role
+    return this.assertRoleExists(id)
   }
 
   async update(id: number, updateRoleDto: UpdateRoleDto) {
-    const role = await this.prisma.role.findUnique({ where: { id } })
-    if (!role) {
-      throw new NotFoundException(`Role with ID ${id} not found`)
-    }
+    const role = await this.assertRoleExists(id)
 
     if (updateRoleDto.roleCode && updateRoleDto.roleCode !== role.roleCode) {
       const existingRole = await this.prisma.role.findUnique({
@@ -103,5 +100,54 @@ export class RolesService {
         status: 0, // 0 表示禁用/无效
       },
     })
+  }
+
+  async getPermissions(roleId: number) {
+    await this.assertRoleExists(roleId)
+
+    const rolePermissions = await this.prisma.rolePermission.findMany({
+      where: { roleId },
+      select: { permissionId: true },
+    })
+
+    return rolePermissions.map((item) => item.permissionId)
+  }
+
+  async updatePermissions(roleId: number, permissionIds: number[]) {
+    await this.assertRoleExists(roleId)
+
+    const uniqueIds = Array.from(new Set(permissionIds))
+
+    if (uniqueIds.length > 0) {
+      const existingPermissions = await this.prisma.permission.findMany({
+        where: { id: { in: uniqueIds } },
+        select: { id: true },
+      })
+
+      if (existingPermissions.length !== uniqueIds.length) {
+        const existingSet = new Set(existingPermissions.map((permission) => permission.id))
+        const missingIds = uniqueIds.filter((id) => !existingSet.has(id))
+        throw new NotFoundException(`Permission IDs not found: ${missingIds.join(', ')}`)
+      }
+    }
+
+    const operations: Prisma.PrismaPromise<unknown>[] = [
+      this.prisma.rolePermission.deleteMany({ where: { roleId } }),
+    ]
+
+    if (uniqueIds.length > 0) {
+      operations.push(
+        this.prisma.rolePermission.createMany({
+          data: uniqueIds.map((permissionId) => ({ roleId, permissionId })),
+        }),
+      )
+    }
+
+    await this.prisma.$transaction(operations)
+
+    return {
+      roleId,
+      permissionIds: uniqueIds,
+    }
   }
 }

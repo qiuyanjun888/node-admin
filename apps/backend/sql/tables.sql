@@ -73,24 +73,34 @@ INSERT INTO roles (id, role_name, role_code) VALUES
 (1, 'Super Admin', 'SUPER_ADMIN'),
 (2, 'Regular User', 'USER');
 
--- Insert Permission Tree (Directories, Menus, Hidden Menus, Buttons)
--- Level 1 Directory (type=1)
-INSERT INTO permissions (id, name, type, parent_id, path, sort_order) VALUES 
-(1, 'System Management', 1, 0, '/system', 1);
+-- Insert Permission Tree (Directories, Menus, Buttons)
+-- Root Menus & Directories
+INSERT INTO permissions (id, name, type, parent_id, path, component, sort_order, is_visible) VALUES 
+(1, '控制台', 2, 0, '/', 'dashboard/index', 0, 1),
+(2, '系统管理', 1, 0, '/system', NULL, 1, 1);
 
 -- Level 2 Menus (type=2)
 INSERT INTO permissions (id, name, type, parent_id, path, component, sort_order, is_visible) VALUES 
-(2, 'User Management', 2, 1, '/system/user', 'system/user/index', 1, 1),
-(3, 'Role Management', 2, 1, '/system/role', 'system/role/index', 2, 1),
-(4, 'System Logs', 2, 1, '/system/log', 'system/log/index', 3, 1),
--- Profile page: accessible but hidden from sidebar
-(5, 'Profile', 2, 0, '/profile', 'system/profile/index', 99, 0);
+(3, '菜单管理', 2, 2, '/system/menu', 'system/menu/index', 1, 1),
+(4, '角色管理', 2, 2, '/system/role', 'system/role/index', 2, 1),
+(5, '用户管理', 2, 2, '/system/user', 'system/user/index', 3, 1),
+(6, '权限管理', 2, 2, '/system/permission', 'system/permission/index', 4, 1);
 
 -- Buttons / Action Permissions (type=3)
 INSERT INTO permissions (id, name, type, parent_id, permission_code) VALUES 
-(10, 'Create User', 3, 2, 'sys:user:add'),
-(11, 'Delete User', 3, 2, 'sys:user:delete'),
-(12, 'View Log Detail', 3, 4, 'sys:log:detail');
+(10, '新增菜单', 3, 3, 'sys:menu:add'),
+(11, '编辑菜单', 3, 3, 'sys:menu:edit'),
+(12, '删除菜单', 3, 3, 'sys:menu:delete'),
+(13, '新增角色', 3, 4, 'sys:role:add'),
+(14, '编辑角色', 3, 4, 'sys:role:edit'),
+(15, '禁用角色', 3, 4, 'sys:role:disable'),
+(16, '新增用户', 3, 5, 'sys:user:add'),
+(17, '编辑用户', 3, 5, 'sys:user:edit'),
+(18, '禁用用户', 3, 5, 'sys:user:disable'),
+(19, '新增权限', 3, 6, 'sys:permission:add'),
+(20, '编辑权限', 3, 6, 'sys:permission:edit'),
+(21, '删除权限', 3, 6, 'sys:permission:delete'),
+(22, '角色授权', 3, 6, 'sys:permission:assign');
 
 -- Insert Users (Password: 123456)
 INSERT INTO users (id, username, password, nickname) VALUES 
@@ -101,10 +111,12 @@ INSERT INTO users (id, username, password, nickname) VALUES
 INSERT INTO user_roles (user_id, role_id) VALUES (1, 1), (2, 2);
 
 -- Assign Permissions
--- Super Admin gets everything (1,2,3,4,5,10,11,12)
+-- Super Admin gets everything
 INSERT INTO role_permissions (role_id, permission_id) VALUES 
-(1, 1), (1, 2), (1, 3), (1, 4), (1, 5), (1, 10), (1, 11), (1, 12);
+(1, 1), (1, 2), (1, 3), (1, 4), (1, 5), (1, 6),
+(1, 10), (1, 11), (1, 12), (1, 13), (1, 14), (1, 15),
+(1, 16), (1, 17), (1, 18), (1, 19), (1, 20), (1, 21), (1, 22);
 
--- Regular User gets System Logs and Profile Only (1,4,5,12)
+-- Regular User gets dashboard + user management menus
 INSERT INTO role_permissions (role_id, permission_id) VALUES 
-(2, 1), (2, 4), (2, 5), (2, 12);
+(2, 1), (2, 2), (2, 5), (2, 16), (2, 17);

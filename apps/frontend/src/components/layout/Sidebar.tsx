@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import {
   Settings,
@@ -8,30 +8,127 @@ import {
   ChevronDown,
   LayoutDashboard,
 } from 'lucide-react'
+import type { LucideIcon } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { useQuery } from '@tanstack/react-query'
+import api from '@/lib/api'
+import type { PermissionTreeNode } from '@/types/system'
+import { useCurrentRole } from '@/contexts/CurrentRoleContext'
 
 interface SidebarProps {
   isOpen: boolean
 }
 
-export default function Sidebar({ isOpen }: SidebarProps) {
-  const [isSystemMenuOpen, setSystemMenuOpen] = useState(true)
-  const location = useLocation()
+const iconMap: Record<string, LucideIcon> = {
+  '/': LayoutDashboard,
+  '/system': Settings,
+  '/system/menu': MenuIcon,
+  '/system/role': ShieldCheck,
+  '/system/user': Users,
+  '/system/permission': ShieldCheck,
+}
 
-  const navItems = [
-    {
-      title: '系统管理',
-      icon: Settings,
-      isOpen: isSystemMenuOpen,
-      setOpen: setSystemMenuOpen,
-      children: [
-        { title: '菜单管理', path: '/system/menu', icon: MenuIcon },
-        { title: '角色管理', path: '/system/role', icon: ShieldCheck },
-        { title: '用户管理', path: '/system/user', icon: Users },
-        { title: '权限管理', path: '/system/permission', icon: ShieldCheck },
-      ],
-    },
-  ]
+function resolveIcon(node: PermissionTreeNode) {
+  if (node.path && iconMap[node.path]) {
+    return iconMap[node.path]
+  }
+  return node.type === 1 ? Settings : MenuIcon
+}
+
+function SidebarNode({
+  node,
+  isSidebarOpen,
+  depth = 0,
+}: {
+  node: PermissionTreeNode
+  isSidebarOpen: boolean
+  depth?: number
+}) {
+  const location = useLocation()
+  const hasChildren = Boolean(node.children && node.children.length > 0)
+  const isActive = Boolean(
+    node.path &&
+      (location.pathname === node.path || location.pathname.startsWith(`${node.path}/`)),
+  )
+  const [isExpanded, setExpanded] = useState(hasChildren && isActive)
+
+  useEffect(() => {
+    if (isActive && hasChildren) {
+      setExpanded(true)
+    }
+  }, [isActive, hasChildren])
+
+  const Icon = resolveIcon(node)
+
+  if (node.type === 1) {
+    return (
+      <div className="space-y-1">
+        <button
+          onClick={() => setExpanded(!isExpanded)}
+          className={cn(
+            'w-full flex items-center px-3 py-2 rounded-lg transition-colors group',
+            'hover:bg-sidebar-accent text-sidebar-foreground/60 hover:text-sidebar-foreground font-medium',
+          )}
+          style={{ paddingLeft: isSidebarOpen ? 12 + depth * 12 : 12 }}
+        >
+          <Icon className="w-5 h-5 shrink-0 text-sidebar-primary/80" />
+          {isSidebarOpen && (
+            <>
+              <span className="ml-3 flex-1 text-left">{node.name}</span>
+              <ChevronDown
+                className={cn(
+                  'w-4 h-4 transition-transform opacity-50',
+                  isExpanded && 'rotate-180',
+                )}
+              />
+            </>
+          )}
+        </button>
+
+        {isSidebarOpen && isExpanded && hasChildren && (
+          <div className="ml-4 pl-4 border-l border-sidebar-border space-y-1 mt-1">
+            {node.children?.map((child) => (
+              <SidebarNode key={child.id} node={child} isSidebarOpen={isSidebarOpen} depth={depth + 1} />
+            ))}
+          </div>
+        )}
+      </div>
+    )
+  }
+
+  if (!node.path) {
+    return null
+  }
+
+  return (
+    <Link
+      to={node.path}
+      className={cn(
+        'flex items-center px-3 py-2 rounded-lg text-sm transition-colors',
+        isActive
+          ? 'bg-sidebar-accent text-sidebar-foreground font-semibold'
+          : 'text-sidebar-foreground/50 hover:text-sidebar-foreground hover:bg-sidebar-accent/50',
+      )}
+      style={{ paddingLeft: isSidebarOpen ? 12 + depth * 12 : 12 }}
+    >
+      <Icon className="w-4 h-4 shrink-0" />
+      {isSidebarOpen && <span className="ml-3">{node.name}</span>}
+    </Link>
+  )
+}
+
+export default function Sidebar({ isOpen }: SidebarProps) {
+  const { currentRoleId } = useCurrentRole()
+
+  const menuQuery = useQuery<PermissionTreeNode[]>({
+    queryKey: ['system', 'permissions', 'menus', currentRoleId],
+    queryFn: () =>
+      api.get('/system/permissions/menus', {
+        params: currentRoleId ? { roleId: currentRoleId } : {},
+      }),
+  })
+
+  const menuTree = menuQuery.data ?? []
 
   return (
     <aside
@@ -52,61 +149,19 @@ export default function Sidebar({ isOpen }: SidebarProps) {
       </div>
 
       <nav className="flex-1 overflow-y-auto py-4 px-3 space-y-2">
-        <Link
-          to="/"
-          className={cn(
-            'flex items-center px-3 py-2 rounded-lg transition-colors group',
-            location.pathname === '/'
-              ? 'bg-sidebar-primary text-sidebar-primary-foreground'
-              : 'hover:bg-sidebar-accent text-sidebar-foreground/60 hover:text-sidebar-foreground',
-          )}
-        >
-          <LayoutDashboard className="w-5 h-5 shrink-0" />
-          {isOpen && <span className="ml-3 font-medium">控制台</span>}
-        </Link>
-
-        {navItems.map((item, idx) => (
-          <div key={idx} className="space-y-1">
-            <button
-              onClick={() => item.setOpen(!item.isOpen)}
-              className={cn(
-                'w-full flex items-center px-3 py-2 rounded-lg transition-colors group',
-                'hover:bg-sidebar-accent text-sidebar-foreground/60 hover:text-sidebar-foreground font-medium',
-              )}
-            >
-              <item.icon className="w-5 h-5 shrink-0 text-sidebar-primary/80" />
-              {isOpen && (
-                <>
-                  <span className="ml-3 flex-1 text-left">{item.title}</span>
-                  <ChevronDown
-                    className={cn(
-                      'w-4 h-4 transition-transform opacity-50',
-                      item.isOpen && 'rotate-180',
-                    )}
-                  />
-                </>
-              )}
-            </button>
-
-            {isOpen && item.isOpen && (
-              <div className="ml-4 pl-4 border-l border-sidebar-border space-y-1 mt-1">
-                {item.children.map((child, childIdx) => (
-                  <Link
-                    key={childIdx}
-                    to={child.path}
-                    className={cn(
-                      'flex items-center px-3 py-2 rounded-lg text-sm transition-colors',
-                      location.pathname === child.path
-                        ? 'bg-sidebar-accent text-sidebar-foreground font-semibold'
-                        : 'text-sidebar-foreground/50 hover:text-sidebar-foreground hover:bg-sidebar-accent/50',
-                    )}
-                  >
-                    <span>{child.title}</span>
-                  </Link>
-                ))}
-              </div>
-            )}
+        {menuQuery.isLoading && isOpen && (
+          <div className="px-3 py-2 text-sm text-sidebar-foreground/50">菜单加载中...</div>
+        )}
+        {menuQuery.error && isOpen && (
+          <div className="px-3 py-2 text-sm text-red-500">
+            菜单加载失败: {(menuQuery.error as Error).message}
           </div>
+        )}
+        {!menuQuery.isLoading && menuTree.length === 0 && isOpen && (
+          <div className="px-3 py-2 text-sm text-sidebar-foreground/50">暂无可用菜单</div>
+        )}
+        {menuTree.map((node) => (
+          <SidebarNode key={node.id} node={node} isSidebarOpen={isOpen} />
         ))}
       </nav>
     </aside>

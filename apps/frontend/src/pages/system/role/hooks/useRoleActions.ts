@@ -25,10 +25,19 @@ export function useRoleActions(
 
   // Update role mutation
   const updateMutation = useMutation({
-    mutationFn: ({ id, data }: { id: number; data: Partial<Role> }) =>
+    mutationFn: ({ id, data }: { id: number; data: Partial<Role> }): Promise<Role> =>
       api.patch(`/system/roles/${id}`, data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['system', 'roles'] })
+    onSuccess: (updatedRole: Role) => {
+      // Update the role in any cached lists (both the paginated one and the 'all' list)
+      queryClient.setQueriesData<PageResult<Role>>({ queryKey: ['system', 'roles'] }, (oldData) => {
+        if (!oldData) return oldData
+        return {
+          ...oldData,
+          items: oldData.items.map((role) =>
+            role.id === updatedRole.id ? { ...role, ...updatedRole } : role,
+          ),
+        }
+      })
     },
   })
 

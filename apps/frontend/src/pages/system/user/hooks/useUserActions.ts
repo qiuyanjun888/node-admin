@@ -26,10 +26,19 @@ export function useUserActions(
 
   // Update user mutation
   const updateMutation = useMutation({
-    mutationFn: ({ id, data }: { id: number; data: Partial<User> }) =>
+    mutationFn: ({ id, data }: { id: number; data: Partial<User> }): Promise<User> =>
       api.patch(`/system/users/${id}`, data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['system', 'users'] })
+    onSuccess: (updatedUser: User) => {
+      // Update the user in any cached lists
+      queryClient.setQueriesData<PageResult<User>>({ queryKey: ['system', 'users'] }, (oldData) => {
+        if (!oldData) return oldData
+        return {
+          ...oldData,
+          items: oldData.items.map((user) =>
+            user.id === updatedUser.id ? { ...user, ...updatedUser } : user,
+          ),
+        }
+      })
     },
   })
 

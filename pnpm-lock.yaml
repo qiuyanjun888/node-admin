@@ -99,9 +99,6 @@ importers:
       '@node-admin/eslint-config':
         specifier: workspace:*
         version: link:../../packages/eslint-config
-      '@node-admin/tsconfig':
-        specifier: workspace:*
-        version: link:../../packages/tsconfig
       '@types/bcrypt':
         specifier: ^6.0.0
         version: 6.0.0
@@ -220,9 +217,6 @@ importers:
       '@node-admin/eslint-config':
         specifier: workspace:*
         version: link:../../packages/eslint-config
-      '@node-admin/tsconfig':
-        specifier: workspace:*
-        version: link:../../packages/tsconfig
       '@testing-library/jest-dom':
         specifier: ^6.9.1
         version: 6.9.1
@@ -314,11 +308,7 @@ importers:
         specifier: ^8.46.4
         version: 8.54.0(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3)
 
-  packages/shared-types:
-    devDependencies:
-      '@node-admin/tsconfig':
-        specifier: workspace:*
-        version: link:../tsconfig
+  packages/shared-types: {}
 
   packages/tsconfig: {}
 

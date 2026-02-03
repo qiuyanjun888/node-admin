@@ -107,7 +107,7 @@ export default function UserManagement() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-3xl font-bold tracking-tight text-foreground/90">用户管理</h2>
-          <p className="text-muted-foreground mt-1 text-sm">维护后台管理员账号及启用状态。</p>
+          {/* <p className="text-muted-foreground mt-1 text-sm">维护后台管理员账号及启用状态。</p> */}
         </div>
         <Button onClick={() => setIsModalOpen(true)} className="gap-2 shadow-sm">
           <Plus className="w-4 h-4" />

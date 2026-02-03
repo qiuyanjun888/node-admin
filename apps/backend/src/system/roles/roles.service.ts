@@ -54,7 +54,6 @@ export class RolesService {
         where,
         skip,
         take: pageSize,
-        orderBy: { createdAt: 'desc' },
       }),
     ])
 

@@ -65,7 +65,6 @@ export class UsersService {
         skip,
         take: pageSize,
         select: userSelect,
-        orderBy: { createdAt: 'desc' },
       }),
     ])
 

@@ -1,15 +1,20 @@
-import { ChevronDown, ChevronRight, Folder, LayoutGrid, Plus, SquareMousePointer, Trash2, Pencil } from 'lucide-react'
+import {
+  ChevronDown,
+  ChevronRight,
+  Folder,
+  LayoutGrid,
+  Plus,
+  SquareMousePointer,
+  Trash2,
+  Pencil,
+} from 'lucide-react'
 import { cn } from '@/lib/utils'
 import type { PermissionTreeNode } from '@/types/system'
 
-const typeMeta: Record<number, { label: string; icon: typeof Folder; className: string }> = {
-  1: { label: '目录', icon: Folder, className: 'bg-blue-50 text-blue-600 border-blue-200' },
-  2: { label: '菜单', icon: LayoutGrid, className: 'bg-emerald-50 text-emerald-600 border-emerald-200' },
-  3: {
-    label: '按钮',
-    icon: SquareMousePointer,
-    className: 'bg-amber-50 text-amber-600 border-amber-200',
-  },
+const typeIcon: Record<number, typeof Folder> = {
+  1: Folder,
+  2: LayoutGrid,
+  3: SquareMousePointer,
 }
 
 interface PermissionManageTreeProps {
@@ -40,8 +45,7 @@ function PermissionManageNode({
 }) {
   const hasChildren = !!node.children && node.children.length > 0
   const isExpanded = expandedIds.has(node.id)
-  const meta = typeMeta[node.type] ?? typeMeta[2]
-  const Icon = meta.icon
+  const Icon = typeIcon[node.type] ?? typeIcon[2]
 
   return (
     <div>
@@ -73,17 +77,13 @@ function PermissionManageNode({
             <Icon className="h-4 w-4 text-muted-foreground" />
             {node.name}
           </span>
-          <span className={cn('rounded-full border px-2 py-0.5 text-xs font-medium', meta.className)}>
-            {meta.label}
-          </span>
+
           {node.permissionCode ? (
             <span className="rounded-md bg-muted px-2 py-0.5 text-xs font-mono text-muted-foreground">
               {node.permissionCode}
             </span>
           ) : null}
-          {node.path ? (
-            <span className="text-xs text-muted-foreground">{node.path}</span>
-          ) : null}
+          {node.path ? <span className="text-xs text-muted-foreground">{node.path}</span> : null}
         </div>
         <div className="flex items-center gap-1">
           <button

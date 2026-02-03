@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState, createElement } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import {
   Settings,
@@ -35,6 +35,10 @@ function resolveIcon(node: PermissionTreeNode) {
   return node.type === 1 ? Settings : MenuIcon
 }
 
+function SidebarIcon({ node, className }: { node: PermissionTreeNode; className?: string }) {
+  return createElement(resolveIcon(node), { className })
+}
+
 function SidebarNode({
   node,
   isSidebarOpen,
@@ -47,18 +51,18 @@ function SidebarNode({
   const location = useLocation()
   const hasChildren = Boolean(node.children && node.children.length > 0)
   const isActive = Boolean(
-    node.path &&
-      (location.pathname === node.path || location.pathname.startsWith(`${node.path}/`)),
+    node.path && (location.pathname === node.path || location.pathname.startsWith(`${node.path}/`)),
   )
   const [isExpanded, setExpanded] = useState(hasChildren && isActive)
 
-  useEffect(() => {
+  // Synchronize expanded state when isActive changes
+  const [prevIsActive, setPrevIsActive] = useState(isActive)
+  if (isActive !== prevIsActive) {
+    setPrevIsActive(isActive)
     if (isActive && hasChildren) {
       setExpanded(true)
     }
-  }, [isActive, hasChildren])
-
-  const Icon = resolveIcon(node)
+  }
 
   if (node.type === 1) {
     return (
@@ -71,7 +75,7 @@ function SidebarNode({
           )}
           style={{ paddingLeft: isSidebarOpen ? 12 + depth * 12 : 12 }}
         >
-          <Icon className="w-5 h-5 shrink-0 text-sidebar-primary/80" />
+          <SidebarIcon node={node} className="w-5 h-5 shrink-0 text-sidebar-primary/80" />
           {isSidebarOpen && (
             <>
               <span className="ml-3 flex-1 text-left">{node.name}</span>
@@ -88,7 +92,12 @@ function SidebarNode({
         {isSidebarOpen && isExpanded && hasChildren && (
           <div className="ml-4 pl-4 border-l border-sidebar-border space-y-1 mt-1">
             {node.children?.map((child) => (
-              <SidebarNode key={child.id} node={child} isSidebarOpen={isSidebarOpen} depth={depth + 1} />
+              <SidebarNode
+                key={child.id}
+                node={child}
+                isSidebarOpen={isSidebarOpen}
+                depth={depth + 1}
+              />
             ))}
           </div>
         )}
@@ -111,7 +120,7 @@ function SidebarNode({
       )}
       style={{ paddingLeft: isSidebarOpen ? 12 + depth * 12 : 12 }}
     >
-      <Icon className="w-4 h-4 shrink-0" />
+      <SidebarIcon node={node} className="w-4 h-4 shrink-0" />
       {isSidebarOpen && <span className="ml-3">{node.name}</span>}
     </Link>
   )

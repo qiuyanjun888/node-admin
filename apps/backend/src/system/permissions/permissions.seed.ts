@@ -145,9 +145,21 @@ export class PermissionsSeedService implements OnModuleInit {
       { name: '编辑用户', parentId: userManagement.id, permissionCode: 'sys:user:edit' },
       { name: '禁用用户', parentId: userManagement.id, permissionCode: 'sys:user:disable' },
       { name: '新增权限', parentId: permissionManagement.id, permissionCode: 'sys:permission:add' },
-      { name: '编辑权限', parentId: permissionManagement.id, permissionCode: 'sys:permission:edit' },
-      { name: '删除权限', parentId: permissionManagement.id, permissionCode: 'sys:permission:delete' },
-      { name: '角色授权', parentId: permissionManagement.id, permissionCode: 'sys:permission:assign' },
+      {
+        name: '编辑权限',
+        parentId: permissionManagement.id,
+        permissionCode: 'sys:permission:edit',
+      },
+      {
+        name: '删除权限',
+        parentId: permissionManagement.id,
+        permissionCode: 'sys:permission:delete',
+      },
+      {
+        name: '角色授权',
+        parentId: permissionManagement.id,
+        permissionCode: 'sys:permission:assign',
+      },
     ]
 
     for (const action of actions) {

@@ -30,7 +30,7 @@ export function useRoleActions(
     onSuccess: (updatedRole: Role) => {
       // Update the role in any cached lists (both the paginated one and the 'all' list)
       queryClient.setQueriesData<PageResult<Role>>({ queryKey: ['system', 'roles'] }, (oldData) => {
-        if (!oldData) return oldData
+        if (!oldData || !oldData.items) return oldData
         return {
           ...oldData,
           items: oldData.items.map((role) =>

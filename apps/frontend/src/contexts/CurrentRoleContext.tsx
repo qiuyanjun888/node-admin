@@ -22,7 +22,7 @@ export function CurrentRoleProvider({ children }: { children: ReactNode }) {
     queryFn: () => api.get('/system/roles', { params: { page: 1, pageSize: 200, status: 1 } }),
   })
 
-  const roles = rolesQuery.data?.items ?? []
+  const roles = useMemo(() => rolesQuery.data?.items ?? [], [rolesQuery.data?.items])
   const [currentRoleId, setCurrentRoleId] = useState<number | null>(() => {
     if (typeof window === 'undefined') {
       return null
@@ -35,14 +35,18 @@ export function CurrentRoleProvider({ children }: { children: ReactNode }) {
     return Number.isNaN(parsed) ? null : parsed
   })
 
-  useEffect(() => {
-    if (roles.length === 0) {
-      return
-    }
-    if (currentRoleId === null || !roles.some((role) => role.id === currentRoleId)) {
-      setCurrentRoleId(roles[0].id)
-    }
-  }, [roles, currentRoleId])
+  // Synchronize current role when roles change or current role ID becomes invalid
+  const [prevRoles, setPrevRoles] = useState<Role[]>([])
+  if (roles !== prevRoles) {
+    setPrevRoles(roles)
+  }
+
+  if (
+    roles.length > 0 &&
+    (currentRoleId === null || !roles.some((role) => role.id === currentRoleId))
+  ) {
+    setCurrentRoleId(roles[0].id)
+  }
 
   useEffect(() => {
     if (currentRoleId === null || typeof window === 'undefined') {

@@ -44,7 +44,11 @@ export class CreatePermissionDto {
   @Max(1)
   isVisible?: number
 
-  @ApiProperty({ description: 'Permission code for actions', example: 'sys:user:add', required: false })
+  @ApiProperty({
+    description: 'Permission code for actions',
+    example: 'sys:user:add',
+    required: false,
+  })
   @IsOptional()
   @IsString()
   permissionCode?: string

@@ -1,9 +1,9 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { AlertCircle, ListChecks, Plus, RefreshCcw, Save } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { cn } from '@/lib/utils'
-import type { PermissionTreeNode } from '@/types/system'
+import type { PermissionTreeNode, Role } from '@/types/system'
 import { PermissionTree } from './components/PermissionTree'
 import { PermissionFormModal, type PermissionFormData } from './components/PermissionFormModal'
 import { PermissionManageTree } from './components/PermissionManageTree'
@@ -96,7 +96,7 @@ export default function PermissionManagement() {
   } = usePermissionActions(selectedRoleId ?? undefined)
 
   const loadError = (rolesQuery.error ?? permissionsQuery.error) as Error | null
-  const permissions = permissionsQuery.data ?? []
+  const permissions = useMemo(() => permissionsQuery.data ?? [], [permissionsQuery.data])
 
   const parentMap = useMemo(() => {
     const map = new Map<number, number>()
@@ -119,35 +119,39 @@ export default function PermissionManagement() {
   const selectedIdSet = useMemo(() => new Set(selectedIds), [selectedIds])
   const initialSelectedIdSet = useMemo(() => new Set(initialSelectedIds), [initialSelectedIds])
 
-  useEffect(() => {
-    if (permissions.length === 0) {
-      return
+  // Sync expanded nodes when permissions change
+  const [prevPermissions, setPrevPermissions] = useState<PermissionTreeNode[]>([])
+  if (permissions !== prevPermissions) {
+    setPrevPermissions(permissions)
+    if (permissions.length > 0) {
+      const nodesWithChildren = flattenPermissions(permissions)
+        .filter((node) => node.children && node.children.length > 0)
+        .map((node) => node.id)
+      setExpandedIds(new Set(nodesWithChildren))
     }
-    const nodesWithChildren = flattenPermissions(permissions)
-      .filter((node) => node.children && node.children.length > 0)
-      .map((node) => node.id)
-    setExpandedIds(new Set(nodesWithChildren))
-  }, [permissions])
+  }
 
-  useEffect(() => {
-    if (!rolesQuery.data?.items?.length || selectedRoleId) {
-      return
+  // Synchronize role selection and permissions
+  const [prevRoleData, setPrevRoleData] = useState<Role[] | null>(null)
+  const currentRoles = useMemo(() => rolesQuery.data?.items ?? [], [rolesQuery.data?.items])
+  if (currentRoles !== prevRoleData) {
+    setPrevRoleData(currentRoles)
+    if (currentRoles.length > 0 && !selectedRoleId) {
+      setSelectedRoleId(currentRoles[0].id)
     }
-    setSelectedRoleId(rolesQuery.data.items[0].id)
-  }, [rolesQuery.data, selectedRoleId])
+  }
 
-  useEffect(() => {
-    if (!rolePermissionsQuery.data) {
-      return
-    }
+  const [prevRolePerms, setPrevRolePerms] = useState<number[] | null>(null)
+  if (rolePermissionsQuery.data && rolePermissionsQuery.data !== prevRolePerms) {
+    setPrevRolePerms(rolePermissionsQuery.data)
     const normalized = normalizeSelection(new Set(rolePermissionsQuery.data), parentMap)
     const nextIds = Array.from(normalized).sort((a, b) => a - b)
     setSelectedIds(nextIds)
     setInitialSelectedIds(nextIds)
-  }, [rolePermissionsQuery.data, parentMap])
+  }
 
   const filteredRoles = useMemo(() => {
-    const roles = rolesQuery.data?.items ?? []
+    const roles = currentRoles
     if (!roleKeyword.trim()) {
       return roles
     }
@@ -157,7 +161,7 @@ export default function PermissionManagement() {
         role.roleName.toLowerCase().includes(keyword) ||
         role.roleCode.toLowerCase().includes(keyword),
     )
-  }, [roleKeyword, rolesQuery.data])
+  }, [roleKeyword, currentRoles])
 
   const isDirty = useMemo(
     () => !areSetsEqual(selectedIdSet, initialSelectedIdSet),
@@ -247,7 +251,10 @@ export default function PermissionManagement() {
     setEditingPermission(null)
   }
 
-  const openPermissionModal = (permission?: PermissionTreeNode | null, parent?: PermissionTreeNode) => {
+  const openPermissionModal = (
+    permission?: PermissionTreeNode | null,
+    parent?: PermissionTreeNode,
+  ) => {
     if (permission) {
       setEditingPermission(permission)
       setPermissionForm({
@@ -262,13 +269,7 @@ export default function PermissionManagement() {
         status: permission.status,
       })
     } else {
-      const defaultType = parent
-        ? parent.type === 1
-          ? 2
-          : parent.type === 2
-            ? 3
-            : 3
-        : 1
+      const defaultType = parent ? (parent.type === 1 ? 2 : parent.type === 2 ? 3 : 3) : 1
       setEditingPermission(null)
       setPermissionForm({
         ...INITIAL_PERMISSION_FORM,
@@ -326,7 +327,7 @@ export default function PermissionManagement() {
     if (permission.children && permission.children.length > 0) {
       return
     }
-    const confirmed = window.confirm(`确定删除权限 “${permission.name}” 吗？`) // eslint-disable-line no-alert
+    const confirmed = window.confirm(`确定删除权限 “${permission.name}” 吗？`)
     if (!confirmed) {
       return
     }
@@ -488,7 +489,8 @@ export default function PermissionManagement() {
             {selectedRoleId ? (
               <div className="rounded-lg border bg-background/50 p-3">
                 <div className="text-xs text-muted-foreground">
-                  当前角色: {
+                  当前角色:{' '}
+                  {
                     (rolesQuery.data?.items ?? []).find((role) => role.id === selectedRoleId)
                       ?.roleName
                   }

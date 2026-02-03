@@ -8,7 +8,11 @@ export class QueryPermissionDto {
   @IsString()
   name?: string
 
-  @ApiProperty({ description: 'Type (1: Directory, 2: Menu, 3: Button)', example: 2, required: false })
+  @ApiProperty({
+    description: 'Type (1: Directory, 2: Menu, 3: Button)',
+    example: 2,
+    required: false,
+  })
   @IsOptional()
   @Type(() => Number)
   @IsInt()

@@ -61,10 +61,7 @@ export class PermissionsController {
 
   @Patch(':id')
   @ApiOperation({ summary: 'Update a permission' })
-  update(
-    @Param('id', ParseIntPipe) id: number,
-    @Body() updatePermissionDto: UpdatePermissionDto,
-  ) {
+  update(@Param('id', ParseIntPipe) id: number, @Body() updatePermissionDto: UpdatePermissionDto) {
     return this.permissionsService.update(id, updatePermissionDto)
   }
 

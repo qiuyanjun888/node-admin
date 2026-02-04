@@ -43,7 +43,10 @@ export function PermissionFormModal({
   onSubmit,
   onChange,
 }: PermissionFormModalProps) {
-  const updateField = <K extends keyof PermissionFormData>(key: K, value: PermissionFormData[K]) => {
+  const updateField = <K extends keyof PermissionFormData>(
+    key: K,
+    value: PermissionFormData[K],
+  ) => {
     onChange({ ...formData, [key]: value })
   }
 

@@ -7,7 +7,7 @@ describe('PermissionManagement', () => {
     render(<PermissionManagement />)
 
     expect(screen.getByRole('heading', { name: '权限管理' })).toBeInTheDocument()
-    expect(screen.getByText('按角色分配菜单与操作权限，并维护权限树配置。')).toBeInTheDocument()
+    expect(screen.getByText('按角色分配菜单与操作权限。')).toBeInTheDocument()
     expect(screen.getByText('保存权限')).toBeInTheDocument()
   })
 

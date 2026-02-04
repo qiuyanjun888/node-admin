@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Plus, AlertCircle, Search, RotateCcw } from 'lucide-react'
 import type { Role } from '@/types/system'
+import { usePermissionAccess } from '@/hooks/usePermissionAccess'
 import { useRoleActions } from './hooks/useRoleActions'
 import { RoleTable } from './components/RoleTable'
 import { RoleFormModal } from './components/RoleFormModal'
@@ -42,6 +43,10 @@ export default function RoleManagement() {
   )
 
   const { data, isLoading, error, refetch } = rolesQuery
+  const { hasPermission, isReady } = usePermissionAccess()
+  const canAddRole = hasPermission('sys:role:add')
+  const canEditRole = hasPermission('sys:role:edit')
+  const canDisableRole = hasPermission('sys:role:disable')
 
   const handleSearch = () => {
     setQueryParams(filters)
@@ -102,10 +107,16 @@ export default function RoleManagement() {
           <h2 className="text-3xl font-bold tracking-tight text-foreground/90">角色管理</h2>
           {/* <p className="text-muted-foreground mt-1 text-sm">管理系统角色及其关联的权限。</p> */}
         </div>
-        <Button onClick={() => setIsModalOpen(true)} className="gap-2 shadow-sm">
-          <Plus className="w-4 h-4" />
-          新增角色
-        </Button>
+        {!isReady || canAddRole ? (
+          <Button
+            onClick={() => setIsModalOpen(true)}
+            className="gap-2 shadow-sm"
+            disabled={!isReady || !canAddRole}
+          >
+            <Plus className="w-4 h-4" />
+            新增角色
+          </Button>
+        ) : null}
       </div>
 
       {/* Filter Section */}
@@ -166,6 +177,9 @@ export default function RoleManagement() {
         isUpdating={updateMutation.isPending}
         onEdit={handleEdit}
         onToggleStatus={handleToggleStatus}
+        canEdit={canEditRole}
+        canToggleStatus={canDisableRole}
+        isPermissionReady={isReady}
         page={page}
         pageSize={pageSize}
         onPageChange={setPage}

@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { AlertCircle, Save } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { usePermissionAccess } from '@/hooks/usePermissionAccess'
 import { PermissionAssignmentPanel } from './components/PermissionAssignmentPanel'
 import { RoleListPanel } from './components/RoleListPanel'
 import { usePermissionActions } from './hooks/usePermissionActions'
@@ -11,6 +12,8 @@ export default function PermissionManagement() {
 
   const { rolesQuery, permissionsQuery, rolePermissionsQuery, updateRolePermissionsMutation } =
     usePermissionActions(selectedRoleId ?? undefined)
+  const { hasPermission, isReady } = usePermissionAccess()
+  const canAssignPermissions = hasPermission('sys:permission:assign')
 
   const loadError = (rolesQuery.error ?? permissionsQuery.error) as Error | null
   const permissions = useMemo(() => permissionsQuery.data ?? [], [permissionsQuery.data])
@@ -79,14 +82,22 @@ export default function PermissionManagement() {
           <h2 className="text-3xl font-bold tracking-tight text-foreground/90">权限管理</h2>
           <p className="text-muted-foreground mt-1 text-sm">按角色分配菜单与操作权限。</p>
         </div>
-        <Button
-          className="gap-2 shadow-sm"
-          onClick={handleSave}
-          disabled={!selectedRoleId || updateRolePermissionsMutation.isPending || !isDirty}
-        >
-          <Save className="w-4 h-4" />
-          保存权限
-        </Button>
+        {!isReady || canAssignPermissions ? (
+          <Button
+            className="gap-2 shadow-sm"
+            onClick={handleSave}
+            disabled={
+              !selectedRoleId ||
+              updateRolePermissionsMutation.isPending ||
+              !isDirty ||
+              !isReady ||
+              !canAssignPermissions
+            }
+          >
+            <Save className="w-4 h-4" />
+            保存权限
+          </Button>
+        ) : null}
       </div>
 
       <div className="grid gap-6 lg:grid-cols-[320px_1fr]">

@@ -8,6 +8,7 @@ export function useMenuPermissionActions() {
   const invalidatePermissionQueries = () => {
     queryClient.invalidateQueries({ queryKey: ['system', 'permissions', 'tree'] })
     queryClient.invalidateQueries({ queryKey: ['system', 'permissions', 'menus'] })
+    queryClient.invalidateQueries({ queryKey: ['system', 'permissions', 'all'] })
   }
 
   const permissionsQuery = useQuery<PermissionTreeNode[]>({

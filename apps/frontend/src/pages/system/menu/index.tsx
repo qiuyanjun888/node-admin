@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import { AlertCircle, Plus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import type { PermissionTreeNode } from '@/types/system'
+import { usePermissionAccess } from '@/hooks/usePermissionAccess'
 import { PermissionFormModal, type PermissionFormData } from './components/PermissionFormModal'
 import { PermissionManageTree } from './components/PermissionManageTree'
 import { useMenuPermissionActions } from './hooks/useMenuPermissionActions'
@@ -46,6 +47,10 @@ export default function MenuManagement() {
     updatePermissionMutation,
     deletePermissionMutation,
   } = useMenuPermissionActions()
+  const { hasPermission, isReady } = usePermissionAccess()
+  const canAddMenu = hasPermission('sys:menu:add')
+  const canEditMenu = hasPermission('sys:menu:edit')
+  const canDeleteMenu = hasPermission('sys:menu:delete')
 
   const permissions = useMemo(() => permissionsQuery.data ?? [], [permissionsQuery.data])
 
@@ -209,10 +214,16 @@ export default function MenuManagement() {
           <h2 className="text-3xl font-bold tracking-tight">菜单管理</h2>
           <p className="text-muted-foreground mt-1 text-sm">管理菜单与按钮权限，维护系统导航树。</p>
         </div>
-        <Button className="gap-2 shadow-sm" onClick={() => openPermissionModal()}>
-          <Plus className="w-4 h-4" />
-          新增权限
-        </Button>
+        {!isReady || canAddMenu ? (
+          <Button
+            className="gap-2 shadow-sm"
+            onClick={() => openPermissionModal()}
+            disabled={!isReady || !canAddMenu}
+          >
+            <Plus className="w-4 h-4" />
+            新增权限
+          </Button>
+        ) : null}
       </div>
 
       <div className="rounded-xl border bg-card p-4 shadow-sm space-y-4">
@@ -249,6 +260,10 @@ export default function MenuManagement() {
             onAddChild={(node) => openPermissionModal(null, node)}
             onEdit={(node) => openPermissionModal(node)}
             onDelete={handleDeletePermission}
+            canAdd={canAddMenu}
+            canEdit={canEditMenu}
+            canDelete={canDeleteMenu}
+            isPermissionReady={isReady}
           />
         ) : null}
 

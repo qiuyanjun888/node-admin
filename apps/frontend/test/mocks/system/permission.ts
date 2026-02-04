@@ -1,6 +1,8 @@
 import { http, HttpResponse } from 'msw'
 import type { PermissionTreeNode } from '@/types/system'
 
+const now = new Date().toISOString()
+
 const seedTree: PermissionTreeNode[] = [
   {
     id: 1,
@@ -11,33 +13,57 @@ const seedTree: PermissionTreeNode[] = [
     sortOrder: 1,
     isVisible: 1,
     status: 1,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
+    createdAt: now,
+    updatedAt: now,
     children: [
       {
         id: 2,
-        name: '用户管理',
+        name: '菜单管理',
         type: 2,
         parentId: 1,
-        path: '/system/user',
-        component: 'system/user/index',
+        path: '/system/menu',
+        component: 'system/menu/index',
         sortOrder: 1,
         isVisible: 1,
         status: 1,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
+        createdAt: now,
+        updatedAt: now,
         children: [
           {
-            id: 10,
-            name: '新增用户',
+            id: 20,
+            name: '新增菜单',
             type: 3,
             parentId: 2,
             sortOrder: 0,
             isVisible: 1,
-            permissionCode: 'sys:user:add',
+            permissionCode: 'sys:menu:add',
             status: 1,
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
+            createdAt: now,
+            updatedAt: now,
+          },
+          {
+            id: 21,
+            name: '编辑菜单',
+            type: 3,
+            parentId: 2,
+            sortOrder: 0,
+            isVisible: 1,
+            permissionCode: 'sys:menu:edit',
+            status: 1,
+            createdAt: now,
+            updatedAt: now,
+          },
+          {
+            id: 22,
+            name: '删除菜单',
+            type: 3,
+            parentId: 2,
+            sortOrder: 0,
+            isVisible: 1,
+            permissionCode: 'sys:menu:delete',
+            status: 1,
+            createdAt: now,
+            updatedAt: now,
           },
         ],
       },
@@ -51,8 +77,160 @@ const seedTree: PermissionTreeNode[] = [
         sortOrder: 2,
         isVisible: 1,
         status: 1,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
+        createdAt: now,
+        updatedAt: now,
+        children: [
+          {
+            id: 30,
+            name: '新增角色',
+            type: 3,
+            parentId: 3,
+            sortOrder: 0,
+            isVisible: 1,
+            permissionCode: 'sys:role:add',
+            status: 1,
+            createdAt: now,
+            updatedAt: now,
+          },
+          {
+            id: 31,
+            name: '编辑角色',
+            type: 3,
+            parentId: 3,
+            sortOrder: 0,
+            isVisible: 1,
+            permissionCode: 'sys:role:edit',
+            status: 1,
+            createdAt: now,
+            updatedAt: now,
+          },
+          {
+            id: 32,
+            name: '禁用角色',
+            type: 3,
+            parentId: 3,
+            sortOrder: 0,
+            isVisible: 1,
+            permissionCode: 'sys:role:disable',
+            status: 1,
+            createdAt: now,
+            updatedAt: now,
+          },
+        ],
+      },
+      {
+        id: 4,
+        name: '用户管理',
+        type: 2,
+        parentId: 1,
+        path: '/system/user',
+        component: 'system/user/index',
+        sortOrder: 3,
+        isVisible: 1,
+        status: 1,
+        createdAt: now,
+        updatedAt: now,
+        children: [
+          {
+            id: 40,
+            name: '新增用户',
+            type: 3,
+            parentId: 4,
+            sortOrder: 0,
+            isVisible: 1,
+            permissionCode: 'sys:user:add',
+            status: 1,
+            createdAt: now,
+            updatedAt: now,
+          },
+          {
+            id: 41,
+            name: '编辑用户',
+            type: 3,
+            parentId: 4,
+            sortOrder: 0,
+            isVisible: 1,
+            permissionCode: 'sys:user:edit',
+            status: 1,
+            createdAt: now,
+            updatedAt: now,
+          },
+          {
+            id: 42,
+            name: '禁用用户',
+            type: 3,
+            parentId: 4,
+            sortOrder: 0,
+            isVisible: 1,
+            permissionCode: 'sys:user:disable',
+            status: 1,
+            createdAt: now,
+            updatedAt: now,
+          },
+        ],
+      },
+      {
+        id: 5,
+        name: '权限管理',
+        type: 2,
+        parentId: 1,
+        path: '/system/permission',
+        component: 'system/permission/index',
+        sortOrder: 4,
+        isVisible: 1,
+        status: 1,
+        createdAt: now,
+        updatedAt: now,
+        children: [
+          {
+            id: 50,
+            name: '新增权限',
+            type: 3,
+            parentId: 5,
+            sortOrder: 0,
+            isVisible: 1,
+            permissionCode: 'sys:permission:add',
+            status: 1,
+            createdAt: now,
+            updatedAt: now,
+          },
+          {
+            id: 51,
+            name: '编辑权限',
+            type: 3,
+            parentId: 5,
+            sortOrder: 0,
+            isVisible: 1,
+            permissionCode: 'sys:permission:edit',
+            status: 1,
+            createdAt: now,
+            updatedAt: now,
+          },
+          {
+            id: 52,
+            name: '删除权限',
+            type: 3,
+            parentId: 5,
+            sortOrder: 0,
+            isVisible: 1,
+            permissionCode: 'sys:permission:delete',
+            status: 1,
+            createdAt: now,
+            updatedAt: now,
+          },
+          {
+            id: 53,
+            name: '角色授权',
+            type: 3,
+            parentId: 5,
+            sortOrder: 0,
+            isVisible: 1,
+            permissionCode: 'sys:permission:assign',
+            status: 1,
+            createdAt: now,
+            updatedAt: now,
+          },
+        ],
       },
     ],
   },
@@ -60,11 +238,6 @@ const seedTree: PermissionTreeNode[] = [
 
 const permissionTree: PermissionTreeNode[] = JSON.parse(JSON.stringify(seedTree))
 let nextId = 100
-
-const rolePermissions: Record<number, number[]> = {
-  1: [1, 2, 3, 10],
-  2: [1, 3],
-}
 
 const flattenPermissions = (nodes: PermissionTreeNode[]) => {
   const result: PermissionTreeNode[] = []
@@ -82,6 +255,13 @@ const flattenPermissions = (nodes: PermissionTreeNode[]) => {
   return result
 }
 
+const allPermissionIds = flattenPermissions(permissionTree).map((node) => node.id)
+
+const rolePermissions: Record<number, number[]> = {
+  1: allPermissionIds,
+  2: [1, 4],
+}
+
 const findPermission = (nodes: PermissionTreeNode[], id: number): PermissionTreeNode | null => {
   for (const node of nodes) {
     if (node.id === id) {
@@ -97,7 +277,11 @@ const findPermission = (nodes: PermissionTreeNode[], id: number): PermissionTree
   return null
 }
 
-const insertPermission = (nodes: PermissionTreeNode[], parentId: number, node: PermissionTreeNode) => {
+const insertPermission = (
+  nodes: PermissionTreeNode[],
+  parentId: number,
+  node: PermissionTreeNode,
+) => {
   if (parentId === 0) {
     nodes.push(node)
     return
@@ -120,7 +304,10 @@ const filterMenuTree = (nodes: PermissionTreeNode[]): PermissionTreeNode[] => {
     }))
 }
 
-const filterByRole = (nodes: PermissionTreeNode[], allowedIds: Set<number>): PermissionTreeNode[] => {
+const filterByRole = (
+  nodes: PermissionTreeNode[],
+  allowedIds: Set<number>,
+): PermissionTreeNode[] => {
   const filtered: PermissionTreeNode[] = []
   nodes.forEach((node) => {
     const children = node.children ? filterByRole(node.children, allowedIds) : []
@@ -166,7 +353,6 @@ export const permissionHandlers = [
 
   http.post('*/system/permissions', async ({ request }) => {
     const body = (await request.json()) as Partial<PermissionTreeNode>
-    const now = new Date().toISOString()
     const newPermission: PermissionTreeNode = {
       id: nextId++,
       name: body.name ?? '新权限',
@@ -196,7 +382,7 @@ export const permissionHandlers = [
     const id = Number(params.id)
     const target = findPermission(permissionTree, id)
     if (target) {
-      Object.assign(target, body, { updatedAt: new Date().toISOString() })
+      Object.assign(target, body, { updatedAt: now })
     }
     return HttpResponse.json({
       success: true,

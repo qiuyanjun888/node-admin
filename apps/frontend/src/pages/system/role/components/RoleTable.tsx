@@ -17,6 +17,9 @@ interface RoleTableProps {
   isUpdating: boolean
   onEdit: (role: Role) => void
   onToggleStatus: (role: Role) => void
+  canEdit: boolean
+  canToggleStatus: boolean
+  isPermissionReady: boolean
   page: number
   pageSize: number
   onPageChange: (page: number) => void
@@ -29,6 +32,9 @@ export function RoleTable({
   isUpdating,
   onEdit,
   onToggleStatus,
+  canEdit,
+  canToggleStatus,
+  isPermissionReady,
   page,
   pageSize,
   onPageChange,
@@ -100,7 +106,7 @@ export function RoleTable({
                     <Switch
                       checked={role.status === 1}
                       onCheckedChange={() => onToggleStatus(role)}
-                      disabled={isUpdating}
+                      disabled={isUpdating || !isPermissionReady || !canToggleStatus}
                     />
                     <span
                       className={cn(
@@ -114,14 +120,17 @@ export function RoleTable({
                 </td>
                 <td className="px-6 py-4 align-middle text-right">
                   <div className="flex justify-end gap-1">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8 text-muted-foreground hover:text-primary"
-                      onClick={() => onEdit(role)}
-                    >
-                      <Pencil className="w-4 h-4" />
-                    </Button>
+                    {!isPermissionReady || canEdit ? (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-muted-foreground hover:text-primary"
+                        onClick={() => onEdit(role)}
+                        disabled={!isPermissionReady || !canEdit}
+                      >
+                        <Pencil className="w-4 h-4" />
+                      </Button>
+                    ) : null}
                   </div>
                 </td>
               </tr>

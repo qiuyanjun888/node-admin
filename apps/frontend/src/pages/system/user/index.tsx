@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Plus, AlertCircle, Search, RotateCcw } from 'lucide-react'
 import type { User } from '@/types/system'
+import { usePermissionAccess } from '@/hooks/usePermissionAccess'
 import { useUserActions } from './hooks/useUserActions'
 import { UserTable } from './components/UserTable'
 import { UserFormModal } from './components/UserFormModal'
@@ -62,6 +63,10 @@ export default function UserManagement() {
   }
 
   const { data, isLoading, error, refetch } = usersQuery
+  const { hasPermission, isReady } = usePermissionAccess()
+  const canAddUser = hasPermission('sys:user:add')
+  const canEditUser = hasPermission('sys:user:edit')
+  const canDisableUser = hasPermission('sys:user:disable')
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -109,10 +114,16 @@ export default function UserManagement() {
           <h2 className="text-3xl font-bold tracking-tight text-foreground/90">用户管理</h2>
           {/* <p className="text-muted-foreground mt-1 text-sm">维护后台管理员账号及启用状态。</p> */}
         </div>
-        <Button onClick={() => setIsModalOpen(true)} className="gap-2 shadow-sm">
-          <Plus className="w-4 h-4" />
-          新增用户
-        </Button>
+        {!isReady || canAddUser ? (
+          <Button
+            onClick={() => setIsModalOpen(true)}
+            className="gap-2 shadow-sm"
+            disabled={!isReady || !canAddUser}
+          >
+            <Plus className="w-4 h-4" />
+            新增用户
+          </Button>
+        ) : null}
       </div>
 
       {/* Filter Section */}
@@ -166,6 +177,9 @@ export default function UserManagement() {
         isUpdating={updateMutation.isPending}
         onEdit={handleEdit}
         onToggleStatus={handleToggleStatus}
+        canEdit={canEditUser}
+        canToggleStatus={canDisableUser}
+        isPermissionReady={isReady}
         page={page}
         pageSize={pageSize}
         onPageChange={setPage}

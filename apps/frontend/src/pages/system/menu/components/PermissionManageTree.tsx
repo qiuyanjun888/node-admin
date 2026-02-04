@@ -24,6 +24,10 @@ interface PermissionManageTreeProps {
   onAddChild: (node: PermissionTreeNode) => void
   onEdit: (node: PermissionTreeNode) => void
   onDelete: (node: PermissionTreeNode) => void
+  canAdd: boolean
+  canEdit: boolean
+  canDelete: boolean
+  isPermissionReady: boolean
 }
 
 function PermissionManageNode({
@@ -34,6 +38,10 @@ function PermissionManageNode({
   onAddChild,
   onEdit,
   onDelete,
+  canAdd,
+  canEdit,
+  canDelete,
+  isPermissionReady,
 }: {
   node: PermissionTreeNode
   level: number
@@ -42,6 +50,10 @@ function PermissionManageNode({
   onAddChild: (node: PermissionTreeNode) => void
   onEdit: (node: PermissionTreeNode) => void
   onDelete: (node: PermissionTreeNode) => void
+  canAdd: boolean
+  canEdit: boolean
+  canDelete: boolean
+  isPermissionReady: boolean
 }) {
   const hasChildren = !!node.children && node.children.length > 0
   const isExpanded = expandedIds.has(node.id)
@@ -86,42 +98,54 @@ function PermissionManageNode({
           {node.path ? <span className="text-xs text-muted-foreground">{node.path}</span> : null}
         </div>
         <div className="flex items-center gap-1">
-          <button
-            type="button"
-            onClick={() => onAddChild(node)}
-            disabled={node.type === 3}
-            className={cn(
-              'inline-flex h-8 w-8 items-center justify-center rounded-md border text-muted-foreground transition-colors',
-              node.type === 3
-                ? 'cursor-not-allowed opacity-50'
-                : 'hover:text-primary hover:border-primary/40',
-            )}
-            title={node.type === 3 ? '按钮权限不能再添加子级' : '新增子权限'}
-          >
-            <Plus className="h-4 w-4" />
-          </button>
-          <button
-            type="button"
-            onClick={() => onEdit(node)}
-            className="inline-flex h-8 w-8 items-center justify-center rounded-md border text-muted-foreground hover:text-primary hover:border-primary/40"
-            title="编辑权限"
-          >
-            <Pencil className="h-4 w-4" />
-          </button>
-          <button
-            type="button"
-            onClick={() => onDelete(node)}
-            disabled={hasChildren}
-            className={cn(
-              'inline-flex h-8 w-8 items-center justify-center rounded-md border text-muted-foreground transition-colors',
-              hasChildren
-                ? 'cursor-not-allowed opacity-50'
-                : 'hover:text-destructive hover:border-destructive/40',
-            )}
-            title={hasChildren ? '请先删除子权限' : '删除权限'}
-          >
-            <Trash2 className="h-4 w-4" />
-          </button>
+          {!isPermissionReady || canAdd ? (
+            <button
+              type="button"
+              onClick={() => onAddChild(node)}
+              disabled={!isPermissionReady || !canAdd || node.type === 3}
+              className={cn(
+                'inline-flex h-8 w-8 items-center justify-center rounded-md border text-muted-foreground transition-colors',
+                !isPermissionReady || !canAdd || node.type === 3
+                  ? 'cursor-not-allowed opacity-50'
+                  : 'hover:text-primary hover:border-primary/40',
+              )}
+              title={node.type === 3 ? '按钮权限不能再添加子级' : '新增子权限'}
+            >
+              <Plus className="h-4 w-4" />
+            </button>
+          ) : null}
+          {!isPermissionReady || canEdit ? (
+            <button
+              type="button"
+              onClick={() => onEdit(node)}
+              disabled={!isPermissionReady || !canEdit}
+              className={cn(
+                'inline-flex h-8 w-8 items-center justify-center rounded-md border text-muted-foreground transition-colors',
+                !isPermissionReady || !canEdit
+                  ? 'cursor-not-allowed opacity-50'
+                  : 'hover:text-primary hover:border-primary/40',
+              )}
+              title="编辑权限"
+            >
+              <Pencil className="h-4 w-4" />
+            </button>
+          ) : null}
+          {!isPermissionReady || canDelete ? (
+            <button
+              type="button"
+              onClick={() => onDelete(node)}
+              disabled={!isPermissionReady || !canDelete || hasChildren}
+              className={cn(
+                'inline-flex h-8 w-8 items-center justify-center rounded-md border text-muted-foreground transition-colors',
+                !isPermissionReady || !canDelete || hasChildren
+                  ? 'cursor-not-allowed opacity-50'
+                  : 'hover:text-destructive hover:border-destructive/40',
+              )}
+              title={hasChildren ? '请先删除子权限' : '删除权限'}
+            >
+              <Trash2 className="h-4 w-4" />
+            </button>
+          ) : null}
         </div>
       </div>
       {hasChildren && isExpanded ? (
@@ -136,6 +160,10 @@ function PermissionManageNode({
               onAddChild={onAddChild}
               onEdit={onEdit}
               onDelete={onDelete}
+              canAdd={canAdd}
+              canEdit={canEdit}
+              canDelete={canDelete}
+              isPermissionReady={isPermissionReady}
             />
           ))}
         </div>
@@ -151,6 +179,10 @@ export function PermissionManageTree({
   onAddChild,
   onEdit,
   onDelete,
+  canAdd,
+  canEdit,
+  canDelete,
+  isPermissionReady,
 }: PermissionManageTreeProps) {
   return (
     <div className="space-y-1">
@@ -164,6 +196,10 @@ export function PermissionManageTree({
           onAddChild={onAddChild}
           onEdit={onEdit}
           onDelete={onDelete}
+          canAdd={canAdd}
+          canEdit={canEdit}
+          canDelete={canDelete}
+          isPermissionReady={isPermissionReady}
         />
       ))}
     </div>
